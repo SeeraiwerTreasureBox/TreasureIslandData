@@ -1,0 +1,34 @@
+---
+layout: application
+name: Ethercalc
+website: https://ethercalc.net/
+tags:
+- tableur partagé
+- travail collaboratif
+docker:
+  name:
+    x86: tbx-x86-privoxy
+    arm: tbx-rpi-privoxy
+  options:
+    ports: "8118:8118"
+  from:
+    x86: debian
+    arm: resin/rpi-raspbian
+  file: |
+    MAINTAINER BrokenClock "stephane.mourey@impossible-exil.info"
+    RUN set ENV_DEBIAN_FRONTEND=noninteractive
+    RUN apt-get update
+    RUN apt-get install -y privoxy
+    RUN sed -e 's/^listen-address  localhost:8118.*/listen-address  :8118/' /etc/privoxy/config >/etc/privoxy/config.new
+    RUN rm /etc/privoxy/config && mv /etc/privoxy/config.new /etc/privoxy/config
+    RUN printf "{-deanimate-gifs}\n{+filter{unsolicited-popups}}\n{+filter{banners-by-link}}\n{+filter{google}}\n{+filter{yahoo}}\n{+filter{msn}}\n" >>/etc/privoxy/user.action
+    EXPOSE 8118
+    CMD ["/usr/sbin/privoxy","--no-daemon","/etc/privoxy/config"]
+---
+Privoxy est un [proxy](https://fr.wikipedia.org/wiki/Proxy) actif qui améliore votre expérience de navigation sur le web. Parmi les principales fonctionnalités, relevons :
+
+- meilleure protection de la vie privée,
+- suppression de publicités,
+- limitation des cookies.
+
+L'installation sur la TreasureBox vous permettra d'en faire bénéficier tous vos périphériques : ordinateur, tablette, téléphone dans la mesure où ils utilisent votre réseau pour accéder au web. Bon surf !
